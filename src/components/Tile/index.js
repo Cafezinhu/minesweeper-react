@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+import Game from '../../game/Game';
 
 const Square = styled.div`
     background: ${props => props.activated ? '#c9fbff': '#74c9f7'};
@@ -22,16 +23,22 @@ export default class Tile extends Component{
     state = {
         text: '',
         activated: false,
-        bomb: this.props.bomb
+        bomb: this.props.bomb,
+        row: this.props.row,
+        column: this.props.column
     }
 
     componentDidMount(){
         ReactDOM.findDOMNode(this).addEventListener('contextmenu', this.rightClick);
+        this.click();
     }
 
     click = () => {
         if(this.state.text !== '🚩')
-            this.setState({activated: true, text: (this.state.bomb ? '💣' : '')});
+            this.setState((state) => ({
+                activated: true, 
+                text: (state.bomb ? '💣' : Game.bombsAround(state.row, state.column))
+            }));
     }
 
     rightClick = (event) => {

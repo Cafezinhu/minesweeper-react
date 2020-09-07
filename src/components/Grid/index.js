@@ -19,30 +19,27 @@ const Row = styled.div`
     justify-content: space-evenly;
 `;
 
-export default class Grid extends Component{
+export default function Grid(props){
 
-    state = {
-        rows: this.props.rows,
-        columns: this.props.columns,
-        game: new Game(this.props.rows, this.props.columns, this.props.bombs)
-    };
-
-    render(){
-        let rows = [];
-        let counter = 0;
-        for(let i = 0; i < this.state.rows; i++){
-            let tiles = [];
-            for(let j = 0; j < this.state.columns; j++){
-                tiles.push(<Tile bomb={this.state.game.tileHasBomb(i, j)} key={counter}>{counter}</Tile>);
-                counter++;
-            }
-            rows.push(<Row rows={this.state.rows} key={i}>{tiles}</Row>);
+    Game.generate(props.rows, props.columns, props.bombs);
+    let rows = [];
+    let counter = 0;
+    for(let i = 0; i < props.rows; i++){
+        let tiles = [];
+        for(let j = 0; j < props.columns; j++){
+            tiles.push(
+                <Tile bomb={Game.tileHasBomb(i, j)} key={counter} row={i} column={j}>
+                    {counter}
+                </Tile>
+            );
+            counter++;
         }
-
-        return(
-            <GridRoot>
-                {rows}
-            </GridRoot>
-        );
+        rows.push(<Row rows={props.rows} key={i}>{tiles}</Row>);
     }
+
+    return(
+        <GridRoot>
+            {rows}
+        </GridRoot>
+    );
 }

@@ -1,44 +1,55 @@
 export default class Game{
-    _grid = [];
-    _rows = 0;
-    _columns = 0;
+    static _grid = [];
+    static _rows = 0;
+    static _columns = 0;
 
-    constructor(rows, columns, bombs){
-        this._rows = rows;
-        this._columns = columns;
+    static generate(rows, columns, bombs){
+        Game._grid = [];
+        Game._rows = rows;
+        Game._columns = columns;
         let generatedBombs = 0;
         for(let i = 0; i < rows; i++){
             let row = [];
             for(let j = 0; j < columns; j++){
-                const bomb = this.generateBomb();
-                row.push(bomb);
-                if(bomb) generatedBombs++;
+                row.push(false);
             }
-            this._grid.push(row);
+            Game._grid.push(row);
         }
         while(generatedBombs < bombs){
             for(let i = 0; i < rows; i++){
                 for(let j = 0; j < columns; j++){
-                    const bomb = this.generateBomb();
-                    if(bomb) {
-                        this._grid[i][j] = bomb;
+                    const bomb = Game.generateBomb(generatedBombs, bombs);
+                    if(bomb && !Game._grid[i][j]) {
+                        Game._grid[i][j] = bomb;
                         generatedBombs++;
-                        if(generatedBombs === bombs) return;
+                        if(generatedBombs === bombs || generatedBombs >= rows * columns) return;
                     }
                 }
             }
         }
     }
 
-    generateBomb(){
-        const bomb = Math.floor(Math.random() * 20) === 0;
-        console.log(bomb);
-        return bomb;
+    static generateBomb(generatedBombs, totalBombs){
+        if( generatedBombs < totalBombs){
+            const bomb = Math.floor(Math.random() * 100) === 0;
+            return bomb;
+        }
+        return false;
     }
 
-    tileHasBomb(row, column){
-        if(row >= 0 && row < this._rows && column >= 0 && column < this._columns)
-            return this._grid[row][column];
+    static tileHasBomb(row, column){
+        if(row >= 0 && row < Game._rows && column >= 0 && column < Game._columns)
+            return Game._grid[row][column];
         return false;
+    }
+
+    static bombsAround(row, column){
+        let counter = 0;
+        for(let i = -1; i < 2; i++){
+            for(let j = -1; j < 2; j++){
+                if(this.tileHasBomb(row + i, column + j)) counter++;
+            }
+        }
+        return counter;
     }
 }
