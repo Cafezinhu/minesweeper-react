@@ -23,22 +23,27 @@ export default class Tile extends Component{
     state = {
         text: '',
         activated: false,
-        bomb: this.props.bomb,
         row: this.props.row,
-        column: this.props.column
+        column: this.props.column,
+        grid: this.props.grid
     }
 
     componentDidMount(){
         ReactDOM.findDOMNode(this).addEventListener('contextmenu', this.rightClick);
-        this.click();
+        this.state.grid.registerTile(this);
     }
 
     click = () => {
-        if(this.state.text !== '🚩')
+        if(this.state.text !== '🚩'){
+            const hasBomb = Game.tileHasBomb(this.state.row, this.state.column);
             this.setState((state) => ({
-                activated: true, 
-                text: (state.bomb ? '💣' : Game.bombsAround(state.row, state.column))
+                activated: true,
+                text: (hasBomb ? '💣' : Game.bombsAround(state.row, state.column))
             }));
+            if(hasBomb){
+                this.state.grid.revealAllBombs();
+            }
+        }
     }
 
     rightClick = (event) => {
@@ -51,6 +56,12 @@ export default class Tile extends Component{
             this.setState({text: '🚩'});
         }
         
+    }
+
+    revealBomb = () => {
+        if(Game.tileHasBomb(this.state.row, this.state.column)){
+            this.setState({text: '💣'});
+        }
     }
 
     render(){

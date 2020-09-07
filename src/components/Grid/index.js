@@ -19,27 +19,44 @@ const Row = styled.div`
     justify-content: space-evenly;
 `;
 
-export default function Grid(props){
+var tiles = [];
 
-    Game.generate(props.rows, props.columns, props.bombs);
-    let rows = [];
-    let counter = 0;
-    for(let i = 0; i < props.rows; i++){
-        let tiles = [];
-        for(let j = 0; j < props.columns; j++){
-            tiles.push(
-                <Tile bomb={Game.tileHasBomb(i, j)} key={counter} row={i} column={j}>
-                    {counter}
-                </Tile>
-            );
-            counter++;
-        }
-        rows.push(<Row rows={props.rows} key={i}>{tiles}</Row>);
+export default class Grid extends Component{
+
+    componentDidMount(){
+        Game.generate(this.props.rows, this.props.columns, this.props.bombs);
     }
 
-    return(
-        <GridRoot>
-            {rows}
-        </GridRoot>
-    );
+    registerTile = (tile) => {
+        tiles.push(tile);
+    }
+
+    revealAllBombs = () => {
+        tiles.forEach(tile => {
+            tile.revealBomb();
+        });
+    }
+
+    render(){
+        let rows = [];
+        let counter = 0;
+        for(let i = 0; i < this.props.rows; i++){
+            let currentTiles = [];
+            for(let j = 0; j < this.props.columns; j++){
+                const tile = <Tile key={counter} row={i} column={j} grid={this}>
+                        {counter}
+                    </Tile>;
+                
+                currentTiles.push(tile);
+                counter++;
+            }
+            rows.push(<Row rows={this.props.rows} key={i}>{currentTiles}</Row>);
+        }
+
+        return(
+            <GridRoot>
+                {rows}
+            </GridRoot>
+        );
+    }
 }
