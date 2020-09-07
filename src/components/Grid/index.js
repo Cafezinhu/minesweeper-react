@@ -15,6 +15,7 @@ const GridRoot = styled.div`
 const Row = styled.div`
     width: 100%;
     height: calc(${height}px/ ${props => props.rows});
+    font-size: calc(${height}px/ ${props => props.rows}/2);
     display: flex;
     justify-content: space-evenly;
 `;
@@ -24,38 +25,53 @@ var tiles = [];
 export default class Grid extends Component{
 
     componentDidMount(){
-        Game.generate(this.props.rows, this.props.columns, this.props.bombs);
+        const {rows, columns, bombs} = this.props;
+        Game.generate(rows, columns, bombs);
     }
 
-    registerTile = (tile) => {
-        tiles.push(tile);
+    registerTile = (tile, row, column) => {
+        tiles[row][column] = tile;
     }
 
     revealAllBombs = () => {
-        tiles.forEach(tile => {
-            tile.revealBomb();
+        tiles.forEach(row => {
+            row.forEach(tile => {
+                tile.revealBomb();
+            });
         });
     }
 
+    revealTile = (row, column) => {
+        const {rows, columns} = this.props;
+        if(row >= 0 && row < rows && column >= 0 && column < columns){
+            //console.log(`revelando ${row} ${column}`);
+            tiles[row][column].reveal();
+        }
+    }
+
     render(){
-        let rows = [];
+        const {rows, columns} = this.props;
+        let currentRows = [];
         let counter = 0;
-        for(let i = 0; i < this.props.rows; i++){
+        tiles = [];
+        for(let i = 0; i < rows; i++){
             let currentTiles = [];
-            for(let j = 0; j < this.props.columns; j++){
-                const tile = <Tile key={counter} row={i} column={j} grid={this}>
-                        {counter}
-                    </Tile>;
+            let newRow = [];
+            for(let j = 0; j < columns; j++){
+                const tile = <Tile key={counter} row={i} column={j} grid={this}/>;
                 
                 currentTiles.push(tile);
                 counter++;
+
+                newRow.push(null);
             }
-            rows.push(<Row rows={this.props.rows} key={i}>{currentTiles}</Row>);
+            currentRows.push(<Row rows={rows} key={i}>{currentTiles}</Row>);
+            tiles.push(newRow);
         }
 
         return(
             <GridRoot>
-                {rows}
+                {currentRows}
             </GridRoot>
         );
     }

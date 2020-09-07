@@ -23,27 +23,12 @@ export default class Tile extends Component{
     state = {
         text: '',
         activated: false,
-        row: this.props.row,
-        column: this.props.column,
         grid: this.props.grid
     }
 
     componentDidMount(){
         ReactDOM.findDOMNode(this).addEventListener('contextmenu', this.rightClick);
-        this.state.grid.registerTile(this);
-    }
-
-    click = () => {
-        if(this.state.text !== '🚩'){
-            const hasBomb = Game.tileHasBomb(this.state.row, this.state.column);
-            this.setState((state) => ({
-                activated: true,
-                text: (hasBomb ? '💣' : Game.bombsAround(state.row, state.column))
-            }));
-            if(hasBomb){
-                this.state.grid.revealAllBombs();
-            }
-        }
+        this.state.grid.registerTile(this, this.props.row, this.props.column);
     }
 
     rightClick = (event) => {
@@ -55,18 +40,46 @@ export default class Tile extends Component{
         if(!this.state.activated){
             this.setState({text: '🚩'});
         }
-        
+    }
+
+    reveal = () => {
+        if(!this.state.activated && this.state.text !== '🚩'){
+            const {row, column} = this.props;
+            const hasBomb = Game.tileHasBomb(row, column);
+            const bombsAround = Game.bombsAround(row, column);
+            if(hasBomb){
+                this.state.grid.revealAllBombs();
+            }
+            this.setState({
+                activated: true,
+                text: (hasBomb ? '💣' : (bombsAround !== 0 ? bombsAround : ''))
+            }, () => {
+                if(bombsAround === 0){
+                    this.revealAround();
+                }
+            });
+            
+        }
     }
 
     revealBomb = () => {
-        if(Game.tileHasBomb(this.state.row, this.state.column)){
+        if(Game.tileHasBomb(this.props.row, this.props.column)){
             this.setState({text: '💣'});
+        }
+    }
+
+    revealAround = () => {
+        const {row, column} = this.props;
+        for(let i = -1; i < 2; i++){
+            for(let j = -1; j < 2; j++){
+                this.state.grid.revealTile(row + i, column + j);
+            }
         }
     }
 
     render(){
         return(
-            <Square onClick={this.click} activated={this.state.activated}>
+            <Square onClick={this.reveal} activated={this.state.activated}>
                 {this.state.text}
             </Square>
         );
