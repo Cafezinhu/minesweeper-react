@@ -42,7 +42,7 @@ export default class Tile extends Component{
         }
     }
 
-    reveal = () => {
+    reveal = (forceReveal) => {
         if(!this.state.activated && this.state.text !== '🚩'){
             const {row, column} = this.props;
             const hasBomb = Game.tileHasBomb(row, column);
@@ -58,7 +58,8 @@ export default class Tile extends Component{
                     this.revealAround();
                 }
             });
-            
+        }else if(this.state.activated && forceReveal){
+            this.revealAround();
         }
     }
 
@@ -79,7 +80,7 @@ export default class Tile extends Component{
 
     render(){
         return(
-            <Square onClick={this.reveal} activated={this.state.activated}>
+            <Square onClick={() => {this.reveal(true)}} activated={this.state.activated}>
                 {this.state.text}
             </Square>
         );
