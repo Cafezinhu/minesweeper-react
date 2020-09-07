@@ -15,7 +15,7 @@ export default class App extends Component{
     render(){
         return(
             <Root>
-                <Grid rows={20} columns={20}/>
+                <Grid rows={10} columns={10} bombs={10}/>
             </Root>
         );
     }

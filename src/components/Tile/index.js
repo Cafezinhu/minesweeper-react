@@ -21,7 +21,8 @@ export default class Tile extends Component{
 
     state = {
         text: '',
-        activated: false
+        activated: false,
+        bomb: this.props.bomb
     }
 
     componentDidMount(){
@@ -30,7 +31,7 @@ export default class Tile extends Component{
 
     click = () => {
         if(this.state.text !== '🚩')
-            this.setState({activated: true, text: ''});
+            this.setState({activated: true, text: (this.state.bomb ? '💣' : '')});
     }
 
     rightClick = (event) => {
